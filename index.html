@@ -28,15 +28,15 @@
 	<body>
 		<div class="container">
 		<h1>CS184/284A Fall 2026 Homework 4 Write-Up</h1>
-		<div style="text-align: center;">Names: </div>
+		<div style="text-align: center;">Names: Eric Wu </div>
 
 		<br>
 
-		Link to webpage: (TODO) <a href="https://cs184.eecs.berkeley.edu/fa26">cs184.eecs.berkeley.edu/fa26</a>
+		Link to webpage: <a href="https://cal-cs184-student.github.io/hw4-team-eric-wu-writeup/">https://cal-cs184-student.github.io/hw4-team-eric-wu-writeup/</a>
 
 		<br>
 
-		Link to GitHub repository: (TODO) <a href="https://cs184.eecs.berkeley.edu/fa26">cs184.eecs.berkeley.edu/fa26</a>
+		Link to GitHub repository: <a href="https://github.com/cal-cs184-student/hw4-team-eric-wu">https://github.com/cal-cs184-student/hw4-team-eric-wu</a>
 
 		<figure>
 			<img src="assets/clothsim.png" alt="Cloth draped over sphere" style="width:70%"/>
@@ -51,33 +51,86 @@
 		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
 
 		<h2>Part 1: Masses and springs</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>
+			The cloth is modeled as a grid of point masses joined by springs. <code>Cloth::buildGrid</code> builds this grid in two passes: first all of the point masses, then all of the springs.
+		</p>
 
-		<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
+		<h3>Point masses</h3>
+		<p>
+			For a cloth with <code>num_width_points</code> \(\times\) <code>num_height_points</code> masses, the masses are evenly spaced so that mass \((0, 0)\) sits at the origin of the cloth's plane and the last mass sits at \((\text{width}, \text{height})\). The spacing is therefore
+			\[ \Delta x = \frac{\text{width}}{\text{num_width_points} - 1}, \qquad \Delta y = \frac{\text{height}}{\text{num_height_points} - 1}. \]
+			The two orientations differ in how the grid is placed:
+		</p>
+		<ul>
+			<li><b>Horizontal:</b> the cloth lies flat in the \(xz\)-plane at height \(y = 1\). The mass at grid index \((i, j)\) is placed at \((i\,\Delta x,\ 1,\ j\,\Delta y)\).</li>
+			<li><b>Vertical:</b> the cloth hangs in the \(xy\)-plane at \((i\,\Delta x,\ j\,\Delta y,\ z)\), where \(z\) is a small random offset in \([-10^{-3}, 10^{-3}]\). The offset keeps the cloth from being perfectly planar, so it does not stay unnaturally flat once it starts moving.</li>
+		</ul>
+		<p>
+			A mass is marked as pinned if its \((i, j)\) grid index appears in the scene's <code>pinned</code> list. The masses are stored in row-major order: mass \((i, j)\) is at index \(j \cdot \text{num_width_points} + i\) of the 1D <code>point_masses</code> vector. The cloth mesh used for rendering assumes this layout.
+		</p>
+
+		<h3>Springs</h3>
+		<p>
+			The springs are added only after every mass exists. Each spring stores raw pointers to its two masses, so the mass vector must not reallocate while springs are being added. The vector's capacity is reserved up front to guarantee that. Each mass is connected only to neighbors to its <em>left</em> or <em>above</em> it. Every pair of masses is therefore visited once, so no spring is created twice.
+		</p>
+		<ul>
+			<li><b>Structural</b>: to the mass directly left of it and the mass directly above it. These springs resist stretching and compression along the weave of the cloth.</li>
+			<li><b>Shearing</b>: to the masses diagonally upper-left and upper-right of it. These springs resist the cloth's squares skewing into parallelograms (in-plane shear).</li>
+			<li><b>Bending</b>: to the mass two to the left and the mass two above it. These springs resist the cloth folding sharply over a single row or column of masses.</li>
+		</ul>
+		<p>
+			At the edges of the grid, a spring is added only if its neighbor actually exists, so no spring reaches outside the grid. For the \(50 \times 50\) grid in <code>pinned2.json</code>, this gives \(4900\) structural, \(4802\) shearing, and \(4800\) bending springs, for \(14{,}502\) springs in total.
+		</p>
+
+		<h3>Results</h3>
+		<p>
+			The image below shows <code>scene/pinned2.json</code> with all constraints enabled. The cloth is pinned at its two corners along the back edge. Nothing moves yet because the simulation step is not implemented until Part 2.
+		</p>
+		<figure>
+			<img src="assets/part1/all_overview.png" alt="pinned2.json wireframe with all constraints" style="width:80%"/>
+			<figcaption><code>pinned2.json</code>, all constraints enabled.</figcaption>
+		</figure>
+
+		<p>
+			The table below compares the three constraint configurations. The top row shows the whole cloth. The bottom row zooms in near a pinned corner so that individual springs can be told apart. The <i>Spring types</i> toggles on the right of each image show which constraints are enabled; a darker button means the constraint is on.
+		</p>
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
 			  <tr>
 				<td style="text-align: center;">
-				  <img src="assets/clothsim.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="assets/part1/noshear_overview.png" width="100%"/>
+				  <figcaption>No shearing constraints (structural + bending)</figcaption>
 				</td>
 				<td style="text-align: center;">
-				  <img src="assets/clothsim.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="assets/part1/shearonly_overview.png" width="100%"/>
+				  <figcaption>Only shearing constraints</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="assets/part1/all_overview.png" width="100%"/>
+				  <figcaption>All constraints</figcaption>
 				</td>
 			  </tr>
 			  <tr>
 				<td style="text-align: center;">
-				  <img src="assets/clothsim.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="assets/part1/noshear_closeup.png" width="100%"/>
+				  <figcaption>No shearing constraints (close-up)</figcaption>
 				</td>
 				<td style="text-align: center;">
-				  <img src="assets/clothsim.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="assets/part1/shearonly_closeup.png" width="100%"/>
+				  <figcaption>Only shearing constraints (close-up)</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="assets/part1/all_closeup.png" width="100%"/>
+				  <figcaption>All constraints (close-up)</figcaption>
 				</td>
 			  </tr>
 			</table>
 		</div>
+		<ul>
+			<li><b>No shearing:</b> the wireframe is a plain square grid. Every bending spring lies exactly on top of two consecutive structural springs, because it connects a mass to the one two steps away along the same row or column. In a flat wireframe, the bending springs are therefore indistinguishable from the structural ones.</li>
+			<li><b>Only shearing:</b> the wireframe becomes a lattice of diagonals that runs at 45&deg; to the cloth's edges. Each grid square gets an "X" through it, but the square's own edges are missing.</li>
+			<li><b>All constraints:</b> the two patterns combine. Each grid square is outlined by structural springs and crossed by both shearing diagonals.</li>
+		</ul>
 
 		<h2>Part 2: Simulation via numerical integration</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
