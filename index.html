@@ -200,7 +200,33 @@
 		</figure>
 
 		<h2>Part 4: Handling self-collisions</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>
+			Checking every pair of point masses would take \(O(n^2)\) time, so I use a spatial hash instead. Each step, <code>Cloth::simulate</code> rebuilds the hash and then calls <code>self_collide</code> on every point mass.
+		</p>
+		<ul>
+			<li><b><code>hash_position</code></b> splits space into boxes of size \(w \times h \times t\), where \(w = 3 \cdot \text{width} / \text{num_width_points}\), \(h = 3 \cdot \text{height} / \text{num_height_points}\), and \(t = \max(w, h)\). It finds the integer box index \((i, j, k)\) of a position on each axis and returns \(128^2 i + 128 j + k\) as the key.</li>
+			<li><b><code>build_spatial_map</code></b> adds every point mass to the list for its key.</li>
+			<li><b><code>self_collide</code></b> looks at the other masses in the same box. For each one closer than \(2 \cdot \text{thickness}\), it computes the correction that would push this mass directly away from it until they are exactly \(2 \cdot \text{thickness}\) apart. It averages these corrections, divides by <code>simulation_steps</code>, and moves only this mass. Pinned masses are skipped.</li>
+		</ul>
+
+		<h3>Default parameters</h3>
+		<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			<tr><th>\(t =\) 0.5 s</th><th>\(t =\) 1 s</th><th>\(t =\) 1.5 s</th><th>\(t =\) 10 s</th></tr>
+			<tr><td><img src="assets/part4/default_t0_50s.png" width="100%"/></td><td><img src="assets/part4/default_t1_00s.png" width="100%"/></td><td><img src="assets/part4/default_t1_50s.png" width="100%"/></td><td><img src="assets/part4/default_t10_00s.png" width="100%"/></td></tr>
+		</table>
+		<p>
+			<code>scene/selfCollision.json</code>, <i>Normal</i> shader. The bottom of the cloth hits the plane and crumples, and the rest of the cloth folds on top of it in layers instead of clipping through. Over time it slowly unfolds and flattens, since there is no damping between the layers.
+		</p>
+
+		<h3>Density and \(k_s\)</h3>
+		<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			<tr><th></th><th>density \(= 15\)</th><th>density \(= 1500\)</th><th>\(k_s = 500\)</th><th>\(k_s = 50000\)</th></tr>
+			<tr><td style="white-space: nowrap;">\(t =\) 1 s</td><td><img src="assets/part4/density15_t1_00s.png" width="100%"/></td><td><img src="assets/part4/density1500_t1_00s.png" width="100%"/></td><td><img src="assets/part4/ks500_t1_00s.png" width="100%"/></td><td><img src="assets/part4/ks50000_t1_00s.png" width="100%"/></td></tr>
+			<tr><td style="white-space: nowrap;">\(t =\) 10 s</td><td><img src="assets/part4/density15_t10_00s.png" width="100%"/></td><td><img src="assets/part4/density1500_t10_00s.png" width="100%"/></td><td><img src="assets/part4/ks500_t10_00s.png" width="100%"/></td><td><img src="assets/part4/ks50000_t10_00s.png" width="100%"/></td></tr>
+		</table>
+		<p>
+			The defaults are density \(= 150\) and \(k_s = 5000\). A <b>low density</b> or a <b>high \(k_s\)</b> makes the cloth stiff relative to its weight. It folds over itself in a few large, smooth folds and ends with a big flap lying on top. A <b>high density</b> or a <b>low \(k_s\)</b> makes the cloth floppy. It crumples into many small, tight folds. With high density, the heavy cloth then spreads out almost flat. With low \(k_s\), it stays a wrinkled pile. As in Part 2, raising density has an effect similar to lowering \(k_s\).
+		</p>
 
 		<h2>Part 5: Shaders</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
