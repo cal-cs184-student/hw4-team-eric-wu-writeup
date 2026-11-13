@@ -180,7 +180,7 @@
 			where \(f\) is the object's friction. With \(f = 0\), the mass moves all the way to \(p\). With larger \(f\), it moves less, which slows it as it slides along the surface.
 		</p>
 		<ul>
-			<li><b>Sphere:</b> a mass collides if its distance to the center is at most the radius \(r\). Then \(p\) is the point on the surface in the direction of the mass: \(p = c + r\,\frac{x - c}{\lVert x - c \rVert}\), where \(c\) is the center and \(x\) is <code>position</code>.</li>
+			<li><b>Sphere:</b> a mass collides if its distance to the center is at most the radius \(r\). Then \(p\) is the point on the surface in the direction of the mass: \(p = c + r\,\frac{x - c}{\|x - c\|}\), where \(c\) is the center and \(x\) is <code>position</code>.</li>
 			<li><b>Plane:</b> a mass collides if <code>position</code> and <code>last_position</code> are on opposite sides of the plane. The sign of \((x - q) \cdot n\) gives the side, where \(q\) is a point on the plane and \(n\) is its normal. Then \(p\) is <code>position</code> projected onto the plane, moved <code>SURFACE_OFFSET</code> back toward the side the mass came from.</li>
 		</ul>
 
