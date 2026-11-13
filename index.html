@@ -229,7 +229,55 @@
 		</p>
 
 		<h2>Part 5: Shaders</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>
+			A <b>shader program</b> is a small program that runs on the GPU, in parallel, for every vertex or pixel. A <b>vertex shader</b> runs once per vertex. It transforms the vertex to screen space and passes per-vertex data (world position, normal, uv) on to the fragment shader. It can also move vertices, as displacement mapping does. The GPU interpolates those outputs across each triangle, and a <b>fragment shader</b> runs once per pixel to turn them into a color. Lighting and material effects come from the fragment shader using the interpolated normal, light position, camera position, and textures to compute that color.
+		</p>
+
+		<h3>Blinn-Phong shading</h3>
+		<p>
+			Blinn-Phong adds three terms:
+			\[ L = k_a I_a + k_d \frac{I}{r^2} \max(0, n \cdot l) + k_s \frac{I}{r^2} \max(0, n \cdot h)^p. \]
+			The <b>ambient</b> term is a constant that stands in for indirect light, so no part of the surface is fully black. The <b>diffuse</b> term is brightest where the surface faces the light and does not depend on the viewer. The <b>specular</b> term adds shiny highlights where the half vector \(h = \text{normalize}(l + v)\) lines up with the normal, i.e. where the light reflects toward the camera. A larger \(p\) gives smaller, sharper highlights. I used \(k_a = 0.1\), \(I_a = 1\), \(k_d = 1\), \(k_s = 0.5\), \(p = 100\).
+		</p>
+		<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			<tr><th>Ambient only</th><th>Diffuse only</th><th>Specular only</th><th>Full Blinn-Phong</th></tr>
+			<tr><td><img src="assets/part5/cloth_phong_ambient.png" width="100%"/></td><td><img src="assets/part5/cloth_phong_diffuse.png" width="100%"/></td><td><img src="assets/part5/cloth_phong_specular.png" width="100%"/></td><td><img src="assets/part5/cloth_phong.png" width="100%"/></td></tr>
+		</table>
+
+		<h3>Texture mapping</h3>
+		<p>
+			I used my own procedurally generated texture (left) as <code>textures/texture_1.png</code>.
+		</p>
+		<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			<tr><th>My texture</th><th><i>Texture</i> shader</th></tr>
+			<tr><td style="width: 40%;"><img src="assets/part5/my_texture.png" width="80%"/></td><td><img src="assets/part5/cloth_texture.png" width="80%"/></td></tr>
+		</table>
+
+		<h3>Bump and displacement mapping</h3>
+		<p>
+			Both use the brick image <code>textures/texture_3.png</code> as the height map, in place of <code>texture_2.png</code>. The sphere shots use height \(= 0.05\) and normal scaling \(= 40\). The cloth shot uses height \(= 0.02\) and normal scaling \(= 100\).
+		</p>
+		<p>
+			<b>Bump mapping</b> only changes the normal in the fragment shader. The geometry stays the same, so the sphere's outline is still perfectly round, but the lighting makes the bricks look raised. <b>Displacement mapping</b> also moves the vertices along their normals in the vertex shader, so the bricks really stick out and change the silhouette. Displacement depends on the mesh resolution. At 16 \(\times\) 16, there are too few vertices to follow the bricks, so the sphere just becomes a lumpy polygon while the shading still shows the bricks. At 128 \(\times\) 128, the geometry follows the bricks and the outline shows them. Bump mapping looks about the same at both resolutions, apart from the coarse sphere's flat-edged outline.
+		</p>
+		<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			<tr><th></th><th>Bump</th><th>Displacement</th></tr>
+			<tr><td style="white-space: nowrap;"><code>-o 16 -a 16</code></td><td><img src="assets/part5/sphere_bump_16.png" width="100%"/></td><td><img src="assets/part5/sphere_displacement_16.png" width="100%"/></td></tr>
+			<tr><td style="white-space: nowrap;"><code>-o 128 -a 128</code></td><td><img src="assets/part5/sphere_bump_128.png" width="100%"/></td><td><img src="assets/part5/sphere_displacement_128.png" width="100%"/></td></tr>
+		</table>
+		<figure>
+			<img src="assets/part5/cloth_bump.png" alt="Bump mapping on the cloth" style="width: 40%;"/>
+			<figcaption>Bump mapping on the cloth.</figcaption>
+		</figure>
+
+		<h3>Environment-mapped reflections</h3>
+		<p>
+			The mirror shader reflects the direction to the camera about the normal and looks up that direction in the cubemap.
+		</p>
+		<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			<tr><th>Cloth</th><th>Sphere</th></tr>
+			<tr><td><img src="assets/part5/cloth_mirror.png" width="80%"/></td><td><img src="assets/part5/sphere_mirror.png" width="80%"/></td></tr>
+		</table>
 
 		<h2>(Optional) Part 6: Extra Credit - Additional cloth simulation features!</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
