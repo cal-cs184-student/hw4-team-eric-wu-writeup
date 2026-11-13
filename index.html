@@ -48,7 +48,9 @@
 		-->
 
 		<h2>Overview</h2>
-		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
+		<p>
+			In this homework I built a real-time cloth simulator. The cloth is a grid of point masses connected by structural, shearing, and bending springs, and it moves forward in time with Verlet integration. I added collisions with spheres and planes, used a spatial hash so the cloth can collide with itself, and wrote GLSL shaders (Blinn-Phong, texture, bump, displacement, and mirror) to render it. The most interesting thing I learned is how much realistic behavior comes from a few simple rules: springs and gravity alone make convincing folds and drapes, and a few parameters such as \(k_s\), density, and damping change how the fabric looks and feels. I also learned that the physics depends on the ratio \(k_s / m\) rather than on either value alone, and that shaders can make a surface look detailed even when the geometry underneath is simple.
+		</p>
 
 		<h2>Part 1: Masses and springs</h2>
 		<p>
