@@ -174,7 +174,30 @@
 		</figure>
 
 		<h2>Part 3: Handling collisions with other objects</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>
+			After each Verlet step, <code>Cloth::simulate</code> calls <code>collide</code> on every collision object for every point mass. Both <code>collide</code> methods find a corrected target point \(p\) and then set
+			\[ \text{position} = \text{last_position} + (1 - f)\,(p - \text{last_position}), \]
+			where \(f\) is the object's friction. With \(f = 0\), the mass moves all the way to \(p\). With larger \(f\), it moves less, which slows it as it slides along the surface.
+		</p>
+		<ul>
+			<li><b>Sphere:</b> a mass collides if its distance to the center is at most the radius \(r\). Then \(p\) is the point on the surface in the direction of the mass: \(p = c + r\,\frac{x - c}{\lVert x - c \rVert}\), where \(c\) is the center and \(x\) is <code>position</code>.</li>
+			<li><b>Plane:</b> a mass collides if <code>position</code> and <code>last_position</code> are on opposite sides of the plane. The sign of \((x - q) \cdot n\) gives the side, where \(q\) is a point on the plane and \(n\) is its normal. Then \(p\) is <code>position</code> projected onto the plane, moved <code>SURFACE_OFFSET</code> back toward the side the mass came from.</li>
+		</ul>
+
+		<h3>Sphere at rest</h3>
+		<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			<tr><th>\(k_s = 500\)</th><th>\(k_s = 5000\) (default)</th><th>\(k_s = 50000\)</th></tr>
+			<tr><td><img src="assets/part3/sphere_ks500_rest.png" width="100%"/></td><td><img src="assets/part3/sphere_ks5000_rest.png" width="100%"/></td><td><img src="assets/part3/sphere_ks50000_rest.png" width="100%"/></td></tr>
+		</table>
+		<p>
+			A lower \(k_s\) makes the cloth stretchier. At \(k_s = 500\), it hangs lowest, clings closely to the sphere, and has many small, tight folds. At \(k_s = 50000\), it barely stretches. It flares out wider, hangs higher, and forms a few large, smooth folds. The default is in between.
+		</p>
+
+		<h3>Plane at rest</h3>
+		<figure>
+			<img src="assets/part3/plane_rest.png" alt="Cloth at rest on the plane" style="width: 60%;"/>
+			<figcaption><code>scene/plane.json</code> at rest, <i>Normal</i> shader. The lighter square is the cloth lying flat on the plane.</figcaption>
+		</figure>
 
 		<h2>Part 4: Handling self-collisions</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
