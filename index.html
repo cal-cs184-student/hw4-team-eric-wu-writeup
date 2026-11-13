@@ -133,7 +133,45 @@
 		</ul>
 
 		<h2>Part 2: Simulation via numerical integration</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>
+			All screenshots use <code>scene/pinned2.json</code> with the <i>Normal</i> shader. Each row changes one parameter from the defaults (\(k_s = 5000\) N/m, density \(= 15\) g/cm\(^2\), damping \(= 0.2\%\)). Times \(t\) are simulated time.
+		</p>
+
+		<h3>Spring constant \(k_s\)</h3>
+		<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			<tr><th></th><th>\(k_s = 50\)</th><th>\(k_s = 5000\) (default)</th><th>\(k_s = 50000\)</th></tr>
+			<tr><td style="white-space: nowrap;">\(t =\) 1 s</td><td><img src="assets/part2/ks50_t1_00s.png" width="100%"/></td><td><img src="assets/part2/default_t1_00s.png" width="100%"/></td><td><img src="assets/part2/ks50000_t1_00s.png" width="100%"/></td></tr>
+			<tr><td style="white-space: nowrap;">\(t =\) 10 (rest) s</td><td><img src="assets/part2/ks50_t10_00s.png" width="100%"/></td><td><img src="assets/part2/default_t10_00s.png" width="100%"/></td><td><img src="assets/part2/ks50000_t10_00s.png" width="100%"/></td></tr>
+		</table>
+		<p>
+			With a <b>low</b> \(k_s\) (50), the springs are weak, so the cloth stretches a lot and hangs noticeably lower. Its top edge sags into a deep curve, and from about \(t = 1\) s a row of small, tight ripples forms just below that edge and stays there at rest. With a <b>high</b> \(k_s\) (50000), the cloth barely stretches. It hangs at almost its original length, with a gentle droop and one smooth fold, like a stiffer fabric. Changing \(k_s\) has little effect on how long the cloth takes to come to rest (about 2 s in every case).
+		</p>
+
+		<h3>Density</h3>
+		<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			<tr><th></th><th>density \(= 1.5\)</th><th>density \(= 15\) (default)</th><th>density \(= 1500\)</th></tr>
+			<tr><td style="white-space: nowrap;">\(t =\) 1 s</td><td><img src="assets/part2/density15_t1_00s.png" width="100%"/></td><td><img src="assets/part2/default_t1_00s.png" width="100%"/></td><td><img src="assets/part2/density15000_t1_00s.png" width="100%"/></td></tr>
+			<tr><td style="white-space: nowrap;">\(t =\) 10 (rest) s</td><td><img src="assets/part2/density15_t10_00s.png" width="100%"/></td><td><img src="assets/part2/default_t10_00s.png" width="100%"/></td><td><img src="assets/part2/density15000_t10_00s.png" width="100%"/></td></tr>
+		</table>
+		<p>
+			Raising density makes each point mass heavier, so the same spring force holds it up less and the cloth stretches more. A <b>high</b> density (1500) therefore hangs low, with the same tight ripples under the top edge as low \(k_s\). A <b>low</b> density (1.5) hangs nearly unstretched with one smooth fold, like high \(k_s\). In fact, multiplying density by 10 gives the same motion as dividing \(k_s\) by 10, because only the ratio \(k_s / m\) appears in a mass's acceleration.
+		</p>
+
+		<h3>Damping</h3>
+		<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			<tr><th></th><th>damping \(= 0\%\)</th><th>damping \(= 0.2\%\) (default)</th><th>damping \(= 1\%\)</th></tr>
+			<tr><td style="white-space: nowrap;">\(t =\) 1 s</td><td><img src="assets/part2/damping0_t1_00s.png" width="100%"/></td><td><img src="assets/part2/default_t1_00s.png" width="100%"/></td><td><img src="assets/part2/damping1_t1_00s.png" width="100%"/></td></tr>
+			<tr><td style="white-space: nowrap;">\(t =\) 10 (rest) s</td><td><img src="assets/part2/damping0_t10_00s.png" width="100%"/></td><td><img src="assets/part2/default_t10_00s.png" width="100%"/></td><td><img src="assets/part2/damping1_t10_00s.png" width="100%"/></td></tr>
+		</table>
+		<p>
+			With <b>no damping</b>, the cloth never loses energy and never comes to rest. It falls faster than the default cloth, swings back up past the pins by \(t = 1\) s, and keeps flapping and wrinkling indefinitely. With the default 0.2%, the cloth falls, makes one smooth swing, and is at rest by about 2 s. With a <b>high</b> damping (1%), the cloth sinks slowly and smoothly, as if through honey. It is still nearly horizontal at \(t = 1\) s and takes about 7 s to settle. Every damped run ends in the same resting shape, because damping only slows the cloth down and does not change where it comes to rest.
+		</p>
+
+		<h3>Shaded <code>pinned4.json</code> at rest</h3>
+		<figure>
+			<img src="assets/part2/pinned4_rest_angled.png" alt="pinned4.json at rest" style="width: 60%;"/>
+			<figcaption><code>scene/pinned4.json</code> at rest, <i>Normal</i> shader, all default parameters (only the camera was rotated).</figcaption>
+		</figure>
 
 		<h2>Part 3: Handling collisions with other objects</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
